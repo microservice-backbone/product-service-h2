@@ -23,9 +23,9 @@ spec:
         app: core-service-h2
     spec:
       containers:
-        - image: gcr.io/sandbox-236618/demo:0.0.1-SNAPSHOT
+        - image: gcr.io/sandbox-236618/core-service-h2:0.0.1-SNAPSHOT
           imagePullPolicy: IfNotPresent  #IfNotPresent, Always
-          name: demo
+          name: core-service-h2
           resources: {}
       dnsPolicy: ClusterFirst
       restartPolicy: Always
