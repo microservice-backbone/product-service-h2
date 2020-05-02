@@ -1,0 +1,83 @@
+plugins {
+    id 'org.springframework.boot' version '2.2.6.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'java'
+    id 'com.palantir.docker' version '0.22.0'
+    id "io.freefair.lombok" version "5.0.1"
+}
+
+group = 'com.backbone'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+
+    runtimeOnly('com.h2database:h2')
+    runtimeOnly('javax.xml.bind:jaxb-api')
+}
+
+//toDo: add latest tag also.
+docker {
+    dependsOn(bootJar)
+
+//    tansudasli/demo:0.0.1-SNAPSHOT
+//    gcr.io/project-id/demo:0.0.1-SNAPSHOT
+    name "${project.dockerHubUsername}/${project.archivesBaseName}:${bootJar.archiveVersion.get()}"
+    tag "GCP", "gcr.io/${project.gcpProjectID}/${project.archivesBaseName}:${bootJar.archiveVersion.get()}"
+
+    dockerfile file('src/main/Dockerfile')
+
+    files '.'
+
+    pull false
+    noCache false
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task dummy {
+    doLast {
+        println "dummy debug"
+        println project.gcpProjectID
+        println project.dockerHubUsername
+        println project.archivesBaseName
+        println bootJar.archiveBaseName.get()
+        println bootJar.archiveVersion.get()
+        println "${jar.archiveFileName.get()}" //better w/ string concatenation
+        println "${bootJar.archiveFileName.get()}"
+        println bootJar.getArchiveVersion().get()
+    }
+}
