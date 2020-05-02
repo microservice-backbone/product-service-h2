@@ -1,55 +1,62 @@
-# core-service-h2-app
+# core-service-h2
 
 For microservices, you need a backbone. This boilerplate is to practise core microservice concepts like: 
-- [ ] naming conventions
-- [ ] config-server, 
-- [ ] service-discovery
+- [x] naming conventions
 - [x] actuator
+- [ ] logical boundaries
+- [ ] config-server
+- [ ] service-discovery
+- [ ] event-sourcing
+- [ ] CQRS pattern
+
 
 Technology stack
-- spring boot 2.2.7, gradle 6.3, jdk 1.8, Lombok 1.18
+- spring boot 2.2.6, gradle 6.3, jdk 1.8, Lombok 1.18
 
-### Naming Standards
+## Naming Conventions
 
 - project name for template
     - intellij top-level: core-service-h2
     - package name: com.backbone.core
-- project name for a real service
+
+- project name for a real service will take place below!
     - intellij top-level: product-service
     - package name: com.backbone.core
     - gradle's project name: product-service
         - jar name: build/libs/product-service-0.0.1-SNAPSHOT.jar
+    - deployment name in k8s: product-service
 
 ## How To Start
 
 **on IDE**, 
 
 1. `mkdir microservice-backbone-boilerplate && cd microservice-backbone-boilerplate` then
-    - `git clone https://github.com/tansudasli/core-service-h2.git` then
-    - `cd core-service-h2`
+    - `git clone https://github.com/tansudasli/core-service-h2.git && cd core-service-h2`
 2. to Run the application <br>
-   * `./gradlew bootRun` to start . check localhost:8080 in your browser, or,
-   * `./gradlew bootJar` to create jar lib, and `java -jar build/libs/*.jar`.
-3. Then, check `localhost:8080` in your browser or `curl localhost:8080`
+   * `./gradlew bootRun` to start,
+   * `./gradlew bootJar` to create jar lib, and run w/ `java -jar build/libs/*.jar`
+3. to test run `curl localhost:8080`
    * `curl localhost:8080/dummy` or `curl localhost:8080/dummy/name`
-   * `curl localhost:8080/products`
-   * `curl localhost:8080/products/10`
-4. to access h2-db. `localhost:8080/h2-console` in your browser. con. string should be `jdbc:h2:mem:product`,
+   * `curl localhost:8080/products` or `curl localhost:8080/products/10`
+4. to access h2-db check `localhost:8080/h2-console`  w/ conn. `jdbc:h2:mem:product`
 
 <br>**on Kubernetes**,
-1. Prepare and deploy docker images
-   * Edit `gradle.properties` for gcp and docker parameters
-   * Run `./gradlew docker` for docker.io  or `./gradlew dockerTag` for gcr.io. Check w/ 
-       - `docker images`
-       - `docker run -d -p 8080:8080 gcr.io/sandbox-236618/demo:0.0.1-SNAPSHOT` then `curl localhost:8080`
-2. Run `./gradlew dockerPush` for docker.io or `./gradlew dockerPushGCP` for gcr.io
-3. if you don't have a GKE cluster on GCP!
-   * Edit `create-GKE-cluster.sh` then Run `./create-GKE-cluster.sh`
-   * Run `./kubernetes.sh` to deploy demo-app
-   * to test, run `kubectl get services` and get EXTERNAL-IP then `curl EXTERNAL-IP:8080` to test.
+
+1. Create GKE cluster 
+    - `mkdir microservice-backbone-boilerplate && cd microservice-backbone-boilerplate` then Follow the steps in `Readme.md`.
+2. Prepare and deploy docker images to GCP
+    - Edit `gradle.properties`
+    - Run `./gradlew dockerTag`. Test w/ 
+       - `docker images` then `docker run -d -p 8080:8080 IMAGE_NAME:TAG`
+    - Run `./gradlew dockerPushGCP`
+3. Deploy app. to GKE cluster.
+    - Run `./deploy.sh` to deploy w/ .yaml files
+    - to test, run `kubectl get services` and get EXTERNAL-IP then `curl EXTERNAL-IP:8080` to test.
 
 
 ## High Level Architecture - 
+
+an abstract representation of a micro service
 
 ![Image](doc/microservice-highlevel-architecture.png)
 

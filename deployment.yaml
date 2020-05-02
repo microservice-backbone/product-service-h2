@@ -33,25 +33,6 @@ spec:
       securityContext: {}
       terminationGracePeriodSeconds: 30
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  labels:    #selects Pods
-    app: demo-app
-  name: demo-app
-  namespace: default
-spec:
-  externalTrafficPolicy: Cluster
-  ports:
-    - nodePort: 30207
-      port: 8080
-      protocol: TCP
-      targetPort: 8080
-  selector:
-    app: demo-app
-  sessionAffinity: None   #None, ClientIP
-  type: LoadBalancer
----
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:

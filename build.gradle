@@ -48,14 +48,14 @@ dependencies {
     runtimeOnly('javax.xml.bind:jaxb-api')
 }
 
-//toDo: add latest tag also.
 docker {
     dependsOn(bootJar)
 
-//    tansudasli/demo:0.0.1-SNAPSHOT
-//    gcr.io/project-id/demo:0.0.1-SNAPSHOT
+//  tansudasli/core-service-h2:0.0.1-SNAPSHOT
+//  gcr.io/sandbox-236618/core-service-h2:0.0.1-SNAPSHOT
     name "${project.dockerHubUsername}/${project.archivesBaseName}:${bootJar.archiveVersion.get()}"
     tag "GCP", "gcr.io/${project.gcpProjectID}/${project.archivesBaseName}:${bootJar.archiveVersion.get()}"
+    tag "LATEST", "gcr.io/${project.gcpProjectID}/${project.archivesBaseName}:latest"
 
     dockerfile file('src/main/Dockerfile')
 
