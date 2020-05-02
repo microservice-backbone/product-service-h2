@@ -2,8 +2,8 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    app: demo-app
-  name: demo-app
+    app: core-service-h2
+  name: core-service-h2
   namespace: default
 spec:
   progressDeadlineSeconds: 600
@@ -11,7 +11,7 @@ spec:
   minReadySeconds: 45  # when a new deployment applied, it waits pod ready+45seconds for application up!
   selector:
     matchLabels:
-      app: demo-app
+      app: core-service-h2
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -20,7 +20,7 @@ spec:
   template:   #pod template
     metadata:
       labels:
-        app: demo-app
+        app: core-service-h2
     spec:
       containers:
         - image: gcr.io/sandbox-236618/demo:0.0.1-SNAPSHOT
@@ -36,7 +36,7 @@ spec:
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: demo-app
+  name: core-service-h2
   namespace: default
 spec:
   maxReplicas: 10
@@ -44,6 +44,6 @@ spec:
   scaleTargetRef:
     apiVersion: extensions/v1beta1
     kind: Deployment
-    name: demo-app
+    name: core-service-h2
   targetCPUUtilizationPercentage: 70
 
