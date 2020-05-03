@@ -21,7 +21,7 @@ to create microservices faster, you need a backbone. This boilerplate prepared t
 
 ### Technology stack
 
-- Requirements (jdk 1.8, docker, GKE)
+- Requirements (openjdk 1.8, docker, GKE)
 - spring boot 2.2.6, gradle 6.3, Lombok 1.18
 
 
