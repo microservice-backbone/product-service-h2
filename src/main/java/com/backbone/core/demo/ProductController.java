@@ -2,12 +2,14 @@ package com.backbone.core.demo;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -62,9 +64,16 @@ public class ProductController {
         return ResponseEntity.created(location).build();
     }
 
+    @GetMapping("/products/category")
+    public List<String> getCategories() {
+        log.info("Get all categories");
+
+        return repository.getDistinctCategories();
+    }
+
     @GetMapping("/products/category/{category}")
     public List<Product> getProductsByCategory(@PathVariable String category) {
-        log.info("Searched by category : {}", category);
+        log.info("Get by category : {}", category);
 
         return repository.findProductsByCategory(category);
     }
