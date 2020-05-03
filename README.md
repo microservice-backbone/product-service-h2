@@ -1,17 +1,29 @@
 # core-service-h2
 
-For microservices, you need a backbone. This boilerplate is to practise core microservice concepts like: 
+to create microservices faster, you need a backbone. This boilerplate prepared to practise core microservice concepts like: 
+
+- [x] cloud-native (stateless on K8s)
+- [ ] cloud-native (state-full on GCP PaaS)
 - [x] naming conventions
 - [x] actuator
+- [x] logging: general
+- [ ] logging: transaction-tracing
+- [x] error-handling: general
+- [ ] error-handling: fault-tolerant
+- [ ] security
+- [ ] profiles (dev, test, prod)
 - [ ] logical boundaries
 - [ ] config-server
 - [ ] service-discovery
 - [ ] event-sourcing
-- [ ] CQRS pattern
+- [ ] CQRS (separate read and write queries)
 
 
-Technology stack
-- spring boot 2.2.6, gradle 6.3, jdk 1.8, Lombok 1.18
+### Technology stack
+
+- Requirements (jdk 1.8, docker, GKE)
+- spring boot 2.2.6, gradle 6.3, Lombok 1.18
+
 
 ## Naming Conventions
 

@@ -5,14 +5,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
-    Product findById(int id);
-    List<Product> findProductsByCategory(String category);
+    Optional<Product> findById(int id);
+    Optional<List<Product>> findProductsByCategory(String category);
 
     @Query("select distinct p.category from Product p")
-    List<String> getDistinctCategories();
+    Optional<List<String>> getDistinctCategories();
 
 //    for custom queries,if you need
 //    @Query("select p from Product p")
