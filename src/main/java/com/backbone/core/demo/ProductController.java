@@ -146,6 +146,38 @@ public class ProductController {
     }
 
     /**
+     * Delete product.
+     *
+     * @param id of Product in URL
+     * @return If OK, returns HttpStatus.OK
+     *         If Id not OK, returns HttpStatus.BAD_REQUEST
+     *         If any exception occurs, returns HttpStatus.EXPECTATION_FAILED
+     */
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable String id) {
+        log.info("Delete product id: {}", id);
+
+        if (id == null) {
+            log.error("Delete product: {}", "id is null");
+
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            repository.deleteById(Integer.valueOf(id));
+
+            log.info("Deleted product id: {}", id);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+
+        } catch (Exception e) {
+            log.error("Delete product id: {} : {}", id, e.getMessage());
+
+            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+        }
+    }
+
+    /**
      * Get all distinct categories
      * select distinct category from product
      *
