@@ -1,6 +1,7 @@
 package com.backbone.core.demo;
 
 import lombok.Data;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,7 +10,7 @@ import javax.persistence.Id;
 
 @Entity
 @Data
-public class Product {
+public class Product extends RepresentationModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -2,6 +2,10 @@ package com.backbone.core.demo;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.ControllerLinkBuilder;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +55,47 @@ public class ProductController {
             log.error("Get product by id {}: {}", id, e.getMessage());
 
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+        }
+    }
+
+    /**
+     * Get product by Id w/ HATEOS support (GET and DELETE links)
+     *
+     * @param id Product's Id in URL
+     * @return If find, returns Product, and get link, and delete link
+     *         If not found, returns Null
+     *         If any exception occurs, returns null
+     */
+    @GetMapping("v2/products/{id}")
+    public EntityModel<Product> getProductAsHATEOS(@PathVariable String id) {
+        log.info("Get product by id: {}", id);
+
+        try {
+            Optional<Product> product = repository.findById(Integer.parseInt(id));
+
+            if (product.isEmpty()) {
+                log.warn("Get product by id {}: {}", id, "Product not found");
+
+                return new EntityModel<>(product.get(), null, null);
+            }
+
+            Link getLink = WebMvcLinkBuilder.linkTo(ProductController.class)
+                    .slash(product.get().getId())
+                    .withSelfRel();
+
+            Link deleteLink = WebMvcLinkBuilder.
+                    linkTo(WebMvcLinkBuilder
+                            .methodOn(ProductController.class)
+                            .deleteProduct(String.valueOf(product.get().getId())))
+                    .withRel("delete");
+
+            log.info("Returned product: {}", product.get());
+
+            return new EntityModel<>(product.get(), getLink, deleteLink);
+        } catch (Exception e) {
+            log.error("Get product by id {}: {}", id, e.getMessage());
+
+            return new EntityModel<>(null, null, null);
         }
     }
 

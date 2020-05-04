@@ -4,6 +4,7 @@ to create microservices faster, you need a backbone. This boilerplate prepared t
 
 - [x] cloud-native (stateless on K8s)
 - [ ] cloud-native (state-full on GCP PaaS)
+- [x] REST maturity: L2 and L3 (HATEOS)
 - [x] naming conventions
 - [x] actuator
 - [x] logging: general
