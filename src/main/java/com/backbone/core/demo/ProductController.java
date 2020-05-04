@@ -83,7 +83,7 @@ public class ProductController {
      * Create product.
      *
      * @param product as JSON in RequestBody
-     * @return If OK, returns Product, new Id in Headers, and HttpStatus.OK
+     * @return If OK, creates Product, new Id in Headers, and HttpStatus.CREATED
      *         If RequestBody not OK, returns Null, and HttpStatus.BAD_REQUEST
      *         If any exception occurs, returns null, and HttpStatus.EXPECTATION_FAILED
      */
