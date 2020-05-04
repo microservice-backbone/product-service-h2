@@ -10,7 +10,10 @@ to create microservices faster, you need a backbone. This boilerplate prepared t
 - [x] logging: general
 - [ ] logging: transaction-tracing
 - [x] error-handling: general
+- [ ] error-handling: static error messages
+- [ ] error-handling: custom exception
 - [ ] error-handling: fault-tolerant
+- [ ] api-management: message-converter (such as text2json and vice versa)
 - [ ] security
 - [ ] profiles (dev, test, prod)
 - [ ] logical boundaries
