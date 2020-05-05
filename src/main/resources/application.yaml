@@ -27,5 +27,16 @@ spring:
       use-new-id-generator-mappings: false    # disables HIBERNATE_SEQUENCE
 
 
-
+logging:
+  #  config: classpath:config/logback-spring.xml
+  #  level:
+  #    org.springframework.web: DEBUG
+  #    guru.springframework.controllers: DEBUG
+  #    org.hibernate: ERROR
+  file:
+    name: logs/${spring.application.name}.log
+  pattern:
+    console: "%d %-5level [${spring.application.name}] [%thread] %logger{0} : %msg%n"
+    file: "%d %-5level [${spring.application.name}] [%thread] %logger{0} : %msg%n"
+    rolling-file-name: ${LOG_FILE}.%d{yyyy-MM-dd}.%i.log.gz
 
