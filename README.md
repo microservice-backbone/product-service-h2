@@ -7,19 +7,16 @@ to create microservices faster, you need a backbone. This boilerplate prepared t
 - [x] REST maturity: L2 and L3 (HATEOS)
 - [x] naming conventions
 - [x] actuator
-- [x] error-handling: general
-- [ ] error-handling: central error messages
-- [ ] error-handling: custom exception
-- [ ] error-handling: fault-tolerant
-- [x] logging: general
-- [ ] logging: distributed-tracing (transaction)
+- [x] error-handling
+- [x] logging: general {Slf4j}
+- [ ] logging: distributed-tracing {sleuth}
 - [ ] logging: monitoring
 - [ ] api-management: message-converter (such as text2json and vice versa)
 - [ ] security
 - [x] profiles (dev, test, prod)
-- [ ] logical boundaries (separate dbs regard to product, user, review etc ...)
-- [ ] rest-template {Feign} (additional to spring framework)
-- [ ] api-gateway {Zuul}
+- [ ] logical boundaries (separating dbs)
+- [ ] rest-template {Feign}
+- [ ] api-gateway {zuul}
 - [ ] load-balancing {ribbon}
 - [ ] fallbacks {hystrix}
 - [ ] config-server {spring}
