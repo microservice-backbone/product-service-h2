@@ -6,7 +6,7 @@ to create microservices faster, you need a backbone. This boilerplate prepared t
 - [ ] cloud-native (state-full on GCP PaaS)
 - [x] REST maturity: L2 and L3 (HATEOS)
 - [x] naming conventions
-- [x] actuator
+- [x] actuator (/health)
 - [x] error-handling
 - [x] logging: general {Slf4j}
 - [ ] logging: distributed-tracing {sleuth}
@@ -27,7 +27,7 @@ to create microservices faster, you need a backbone. This boilerplate prepared t
 
 ### Technology stack
 
-- Requirements (openjdk 1.8, docker, GKE)
+- Requirements (openjdk 11, docker, GKE)
 - spring boot 2.2.6, gradle 6.3, Lombok 1.18
 
 
