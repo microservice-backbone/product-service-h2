@@ -8,7 +8,7 @@ public class InstanceService {
 
 //  Read from .properties or environment value!
 //
-//  ${property.name in application.properties}, or
+//  ${property.name in application.yaml}, or
 //  ${ENV_VALUE:default_value}
     @Value("${HOSTNAME:LOCAL}")
     private String hostName;

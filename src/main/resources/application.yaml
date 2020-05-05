@@ -1,0 +1,31 @@
+server:
+  port: 8082              # www 80, api-gateway 8080, and others take diff. ports
+
+spring:
+  profiles:
+#    include: db          # to include application-db.yaml file
+#    active:              # none, dev, test ... to switch profiles
+  application:
+    name: core-service-h2
+  h2:                     # db
+    console:
+      enabled: true
+      path: /h2
+      settings:
+        trace: false
+        web-allow-others: true
+  datasource:            # datasource
+    url: jdbc:h2:mem:product
+    platform: h2
+    username: sa
+    password:
+    driverClassName: org.h2.Driver
+  jpa:                   # jpa
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+      use-new-id-generator-mappings: false    # disables HIBERNATE_SEQUENCE
+
+
+
+
