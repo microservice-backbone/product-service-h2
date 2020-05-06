@@ -2,8 +2,8 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    app: core-service-h2
-  name: core-service-h2
+    app: product-service-h2
+  name: product-service-h2
   namespace: default
 spec:
   progressDeadlineSeconds: 600
@@ -11,7 +11,7 @@ spec:
   minReadySeconds: 45  # when a new deployment applied, it waits pod ready+45seconds for application up!
   selector:
     matchLabels:
-      app: core-service-h2
+      app: product-service-h2
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -20,12 +20,12 @@ spec:
   template:   #pod template
     metadata:
       labels:
-        app: core-service-h2
+        app: product-service-h2
     spec:
       containers:
-        - image: gcr.io/sandbox-236618/core-service-h2:0.0.1-SNAPSHOT
+        - image: gcr.io/sandbox-236618/product-service-h2:0.0.1-SNAPSHOT
           imagePullPolicy: IfNotPresent  #IfNotPresent, Always
-          name: core-service-h2
+          name: product-service-h2
           resources: {}
       dnsPolicy: ClusterFirst
       restartPolicy: Always
@@ -36,7 +36,7 @@ spec:
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: core-service-h2
+  name: product-service-h2
   namespace: default
 spec:
   maxReplicas: 10
@@ -44,6 +44,6 @@ spec:
   scaleTargetRef:
     apiVersion: extensions/v1beta1
     kind: Deployment
-    name: core-service-h2
+    name: product-service-h2
   targetCPUUtilizationPercentage: 70
 

@@ -13,4 +13,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'core-service-h2'
+rootProject.name = 'product-service-h2'

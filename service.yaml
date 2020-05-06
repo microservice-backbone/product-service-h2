@@ -2,8 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:    #selects Pods
-    app: core-service-h2
-  name: core-service-h2
+    app: product-service-h2
+  name: product-service-h2
   namespace: default
 spec:
   externalTrafficPolicy: Cluster
@@ -13,6 +13,6 @@ spec:
       protocol: TCP
       targetPort: 8080
   selector:
-    app: core-service-h2
+    app: product-service-h2
   sessionAffinity: None   #None, ClientIP
   type: LoadBalancer
