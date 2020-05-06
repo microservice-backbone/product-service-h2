@@ -39,6 +39,7 @@ to create microservices faster, you need a backbone. This boilerplate prepared t
     - gradle's project name: product-service
         - jar name: build/libs/product-service-0.0.1-SNAPSHOT.jar
     - deployment name in k8s: product-service
+    - url format: /product/1 or /products
 
 ## How To Start
 
