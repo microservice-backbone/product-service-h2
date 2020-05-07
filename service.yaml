@@ -9,9 +9,9 @@ spec:
   externalTrafficPolicy: Cluster
   ports:
     - nodePort: 30207
-      port: 8080
+      port: 8083
       protocol: TCP
-      targetPort: 8080
+      targetPort: 8083
   selector:
     app: product-service-h2
   sessionAffinity: None   #None, ClientIP

@@ -14,7 +14,7 @@ RUN echo ${SPRING_OUTPUT_ANSI_ENABLED}
 # deploy the fat-jar
 COPY build/libs/*.jar ${DEPLOYMENT_HOME}/
 
-EXPOSE 8080
+EXPOSE 8083
 
 # only 1 CMD line can be added
 # mysqld
