@@ -1,4 +1,4 @@
-FROM openjdk:11-jre-alpine
+FROM openjdk:7u211-jre-alpine
 
 # ARG can be override on build-step
 ARG DEPLOYMENT_HOME=/usr/local
