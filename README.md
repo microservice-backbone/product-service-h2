@@ -53,7 +53,7 @@ to create microservices faster, you need a backbone. This boilerplate prepared t
 3. to test run `curl localhost:8080`
    * `curl localhost:8080/dummy` or `curl localhost:8080/dummy/name`
    * `curl localhost:8080/products` or `curl localhost:8080/products/10`
-4. to access h2-db check `localhost:8080/h2-console`  w/ conn. `jdbc:h2:mem:product`
+4. to access h2-db check `localhost:8080/h2-console`  w/ conn. `jdbc:h2:mem:products`
 
 <br>**on Kubernetes**,
 

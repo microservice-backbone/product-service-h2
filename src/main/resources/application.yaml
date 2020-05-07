@@ -15,7 +15,7 @@ spring:
         trace: false
         web-allow-others: true
   datasource:            # datasource
-    url: jdbc:h2:mem:product
+    url: jdbc:h2:mem:products
     platform: h2
     username: sa
     password:
