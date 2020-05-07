@@ -19,7 +19,7 @@ create table product
 
 alter table product add primary key (id);
 
---todo: prepare initial data (instead of data.sql)
+--todo: create indexes category etc...
 
 INSERT INTO PRODUCT (category,title,sub_title,brand,rating,short_description,description)
 VALUES ('Fashion','Lorem ipsum dolor sit','free cargo','HP',4,'Lorem ipsum','placerat eget, venenatis a, magna. Lorem ipsum dolor sit amet,'),
