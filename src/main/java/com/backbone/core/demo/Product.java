@@ -15,7 +15,7 @@ import javax.persistence.Id;
 public class Product extends RepresentationModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // disables HIBERNATE_SEQUENCE
     private int id;
 
     private String category;
