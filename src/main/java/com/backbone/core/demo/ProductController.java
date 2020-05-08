@@ -24,7 +24,7 @@ public class ProductController {
     @Autowired
     ProductRepository repository;
 
-//  R ops
+//  Read ops
 
     /**
      * Get product by Id
@@ -97,7 +97,7 @@ public class ProductController {
             return new EntityModel<>(null, null, null);
         }
     }
-    
+
     /**
      * Get all products. Just for demonstration purposes.
      *
@@ -197,7 +197,12 @@ public class ProductController {
         }
     }
 
-//  CUD ops
+
+//  Service ops
+
+
+
+//  CreateUpdateDelete ops
 
     /**
      * Create product.
