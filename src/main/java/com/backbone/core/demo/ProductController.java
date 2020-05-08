@@ -4,15 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
-import org.springframework.hateoas.server.mvc.ControllerLinkBuilder;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,9 +20,7 @@ public class ProductController {
     @Autowired
     ProductRepository repository;
 
-//  L2 REST   separate GET/POST/DELETE/PUT requests @GetMapping ..
-//  L3 REST   HATEOS (return also next actions
-//  /product/1
+//  R ops
 
     /**
      * Get product by Id
@@ -99,6 +94,7 @@ public class ProductController {
         }
     }
 
+    //todo: implement paging
     /**
      * Get all products. Just for demonstration purposes.
      *
@@ -123,6 +119,57 @@ public class ProductController {
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
     }
+
+
+    /**
+     * Get all distinct categories
+     * select distinct category from product
+     *
+     * @return List<String>, and HttpStatus
+     * @throws Exception .
+     */
+    @GetMapping("/products/category")
+    public ResponseEntity<List<String>> getCategories() throws Exception {
+        log.info("Get categories");
+
+        try {
+            Optional<List<String>> categories = repository.getDistinctCategories();
+
+            log.info("Returned categories: {}", categories.get());
+
+            return new ResponseEntity<>(categories.get(), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Get categories: {}", e.getMessage());
+
+            throw e;
+        }
+    }
+
+    /**
+     * Get products by category
+     *
+     * @param category Category string in URL
+     * @return List<Product, and HttpStatus
+            * @throws Exception .
+     */
+    @GetMapping("/products/category/{category}")
+    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable String category) throws Exception {
+        log.info("Get products by category : {}", category);
+
+        try {
+            Optional<List<Product>> products = repository.findByCategory(category);
+
+            log.info("Returned 3 of.. products by category: {}", products.get().subList(0,3));
+
+            return new ResponseEntity<>(products.get(), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Get products by category: {}", e.getMessage());
+
+            throw e;
+        }
+    }
+
+//  CUD ops
 
     /**
      * Create product.
@@ -222,51 +269,5 @@ public class ProductController {
         }
     }
 
-    /**
-     * Get all distinct categories
-     * select distinct category from product
-     *
-     * @return List<String>, and HttpStatus
-     * @throws Exception .
-     */
-    @GetMapping("/products/category")
-    public ResponseEntity<List<String>> getCategories() throws Exception {
-        log.info("Get categories");
 
-        try {
-            Optional<List<String>> categories = repository.getDistinctCategories();
-
-            log.info("Returned categories: {}", categories.get());
-
-            return new ResponseEntity<>(categories.get(), HttpStatus.OK);
-        } catch (Exception e) {
-            log.error("Get categories: {}", e.getMessage());
-
-            throw e;
-        }
-    }
-
-    /**
-     * Get products by category
-     *
-     * @param category Category string in URL
-     * @return List<Product, and HttpStatus
-     * @throws Exception .
-     */
-    @GetMapping("/products/category/{category}")
-    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable String category) throws Exception {
-        log.info("Get products by category : {}", category);
-
-        try {
-            Optional<List<Product>> products = repository.findProductsByCategory(category);
-
-            log.info("Returned 3 of.. products by category: {}", products.get().subList(0,3));
-
-            return new ResponseEntity<>(products.get(), HttpStatus.OK);
-        } catch (Exception e) {
-            log.error("Get products by category: {}", e.getMessage());
-
-            throw e;
-        }
-    }
 }

@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
     Optional<Product> findById(int id);
-    Optional<List<Product>> findProductsByCategory(String category);
+    Optional<List<Product>> findByCategory(String category);
 
     @Query("select distinct p.category from Product p")
     Optional<List<String>> getDistinctCategories();
