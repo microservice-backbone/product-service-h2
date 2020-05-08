@@ -2,6 +2,9 @@ package com.backbone.core.demo;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -93,8 +97,7 @@ public class ProductController {
             return new EntityModel<>(null, null, null);
         }
     }
-
-    //todo: implement paging
+    
     /**
      * Get all products. Just for demonstration purposes.
      *
@@ -120,6 +123,31 @@ public class ProductController {
         }
     }
 
+    /**
+     * Get all products via paging w/ default 10 size.
+     *
+     * @param page starting w/ 0 to ...N
+     * @return If OK, returns List<Product>, and HttpStatus.OK
+     *         If any exception occurs, returns null, and HttpStatus.EXPECTATION_FAILED
+     */
+    @GetMapping("/products/page/{page}")
+    public ResponseEntity<List<Product>> getProducts(@PathVariable String page) {
+        log.info("Get products w/ paging: {}", page);
+
+        try {
+            Page<Product> products = repository.findAll(PageRequest.of(Integer.parseInt(page), 10));
+
+            // todo: if returns no value, means error
+
+            log.info("Returned page:{} of products: {}", page, products.get());
+
+            return new ResponseEntity<>(products.get().collect(Collectors.toList()), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Get products w/ paging: {}: {}", page, e.getMessage());
+
+            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+        }
+    }
 
     /**
      * Get all distinct categories
