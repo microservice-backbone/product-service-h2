@@ -2,6 +2,8 @@ package com.backbone.core.demo;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -9,9 +11,11 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +27,9 @@ public class ProductController {
 
     @Autowired
     ProductRepository repository;
+
+    @Autowired
+    RestTemplate restTemplate;
 
 //  Read ops
 
@@ -200,7 +207,38 @@ public class ProductController {
 
 //  Service ops
 
+    @GetMapping("/products/{productId}/reviews")
+    public ResponseEntity<Product> getProductAll(@PathVariable String productId) {
+        log.info("Get product's reviews by productId : {}", productId);
 
+        try {
+            Optional<Product> product = repository.findById(Integer.valueOf(productId));
+
+            if (product.isPresent()) {
+                log.info("Product is found productId: {}", productId);
+
+                ResponseEntity<List<Review>> reviews =
+                        restTemplate.exchange("http://localhost:8084/reviews/" + productId + "/product",
+                                HttpMethod.GET,
+                                null,
+                                new ParameterizedTypeReference<List<Review>>() { });
+
+                product.get().setReviews(reviews.getBody());
+
+                return new ResponseEntity<>(product.get(), HttpStatus.OK);
+
+            } else {
+                log.warn("Product is not found productId: {}", productId);
+
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+        } catch (Exception e) {
+            log.error("Get products by productId: {} : {}", productId, e.getMessage());
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
 //  CreateUpdateDelete ops
 

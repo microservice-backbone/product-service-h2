@@ -4,10 +4,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.hateoas.RepresentationModel;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Data
@@ -25,4 +23,7 @@ public class Product extends RepresentationModel {
     private int rating;
     private String shortDescription;
     private String description;
+
+    @OneToMany
+    private List<Review> reviews;
 }
