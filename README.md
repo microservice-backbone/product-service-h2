@@ -15,7 +15,7 @@ to create microservices faster, you need a backbone. This boilerplate prepared t
 - [ ] security
 - [x] profiles (dev, test, prod)
 - [ ] logical boundaries (separating dbs)
-- [ ] rest-template {Feign}
+- [x] rest-template {Feign}
 - [ ] api-gateway {zuul}
 - [ ] load-balancing {ribbon}
 - [ ] fallbacks {hystrix}

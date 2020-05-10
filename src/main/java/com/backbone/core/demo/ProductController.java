@@ -1,21 +1,17 @@
 package com.backbone.core.demo;
 
+import com.backbone.core.demo.service.ReviewService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +25,7 @@ public class ProductController {
     ProductRepository repository;
 
     @Autowired
-    RestTemplate restTemplate;
+    ReviewService reviewService;
 
 //  Read ops
 
@@ -217,13 +213,11 @@ public class ProductController {
             if (product.isPresent()) {
                 log.info("Product is found productId: {}", productId);
 
-                ResponseEntity<List<Review>> reviews =
-                        restTemplate.exchange("http://localhost:8084/reviews/" + productId + "/product",
-                                HttpMethod.GET,
-                                null,
-                                new ParameterizedTypeReference<List<Review>>() { });
+                ResponseEntity<List<Review>> reviews = reviewService.productsReviews(productId);
 
                 product.get().setReviews(reviews.getBody());
+
+                log.info("Returned product's all data: {}: {}", productId, product.get());
 
                 return new ResponseEntity<>(product.get(), HttpStatus.OK);
 
