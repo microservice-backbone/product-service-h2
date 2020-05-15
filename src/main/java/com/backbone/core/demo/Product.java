@@ -12,6 +12,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper=false)
 public class Product extends RepresentationModel {
 
+    //todo: separate product header and detail classes!
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // disables HIBERNATE_SEQUENCE
     private int id;
@@ -24,6 +26,6 @@ public class Product extends RepresentationModel {
     private String shortDescription;
     private String description;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     private List<Review> reviews;
 }

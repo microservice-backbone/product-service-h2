@@ -35,7 +35,7 @@ logging:
   file:
     name: logs/${spring.application.name}.log
   pattern:
-    console: "%d %-5level [${spring.application.name}] [%thread] %logger{0} : %msg%n"
-    file: "%d %-5level [${spring.application.name}] [%thread] %logger{0} : %msg%n"
+    console: "%d %-5level [${spring.application.name}] [%thread] %logger{0}.%method: %msg%n"
+    file: "%d %-5level [${spring.application.name}] [%thread] %logger{0}.%method : %msg%n"
     rolling-file-name: ${LOG_FILE}.%d{yyyy-MM-dd}.%i.log.gz
 

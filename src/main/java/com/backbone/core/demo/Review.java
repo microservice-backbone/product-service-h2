@@ -14,6 +14,7 @@ public class Review {
 
     @Id
     private int id;
+
     private String userName;
     private int productId;
 
