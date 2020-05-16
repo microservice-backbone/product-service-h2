@@ -163,7 +163,7 @@ public class ProductController {
 
         try {
             Page<Product> products = repository.findAll(PageRequest.of(Integer.parseInt(page),
-                                                                      Integer.parseInt(size)));
+                                                                       Integer.parseInt(size)));
 
             // if no records found,
             if (products.isEmpty()) {
@@ -333,25 +333,38 @@ public class ProductController {
      * @param category Category string in URL
      * @return List<Product>, and HttpStatus
      */
-    @GetMapping("/products/category/{category}")
-    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable String category) {
-        log.info("Get [category:{}]", category);
+    @GetMapping({"/products/category/{category}",
+                 "/products/category/{category}/page/{page}",
+                 "/products/category/{category}/page/{page}/size/{size}"})
+    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable String category,
+                                                               @PathVariable(required = false) String page,
+                                                               @PathVariable(required = false) String size) {
+        // set defaults
+        page = (page == null) ? PAGE : page;
+        size = (size == null) ? SIZE : size;
+
+        log.info("Get [category:{}, page:{}, size:{}]", category, page, size);
 
         try {
-            Optional<List<Product>> products = repository.findByCategory(category);
+            Page<Product> products = repository.findByCategory(category,
+                                                                         PageRequest.of(Integer.parseInt(page),
+                                                                                        Integer.parseInt(size)));
 
             if (products.isEmpty()) {
-                log.warn("Not found [category:{}]", category);
+                log.error("Not found [category:{}, page:{}, size:{}]", category, page, size);
 
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
-            //todo: add paging
-            log.info("Returned 3 of [category:{}] : {}", category, products.get().subList(0,3));
+            log.info("Returned [category:{}, page:{}, size:{}] : {}", category,
+                                                                      page,
+                                                                      size,
+                                                                      products.get().collect(Collectors.toList()));
 
-            return new ResponseEntity<>(products.get(), HttpStatus.OK);
+            return new ResponseEntity<>(products.get().collect(Collectors.toList()), HttpStatus.OK);
+
         } catch (Exception e) {
-            log.error("Exception [category:{}] : {}", category, e.getMessage());
+            log.error("Exception [category:{}, page:{}, size:{}] : {}", category, page, size, e.getMessage());
 
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
