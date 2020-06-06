@@ -22,16 +22,22 @@ spring:
     driverClassName: org.h2.Driver
   jpa:                   # jpa
     database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
     hibernate:
       ddl-auto: update
+  cache:
+    jcache:
+      config: classpath:config/ehcache.xml
+      provider: org.ehcache.jsr107.EhcacheCachingProvider
 
 
 logging:
-  #  config: classpath:config/logback-spring.xml
-  #  level:
-  #    org.springframework.web: DEBUG
-  #    guru.springframework.controllers: DEBUG
-  #    org.hibernate: ERROR
+#  config: classpath:config/logback-spring.xml
+#  level:
+#    org.springframework.web: DEBUG
+#    org.springframework.cache: DEBUG
+#    guru.springframework.controllers: DEBUG
+#    org.hibernate: ERROR
   file:
     name: logs/${spring.application.name}.log
   pattern:

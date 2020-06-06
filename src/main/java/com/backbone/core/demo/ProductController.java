@@ -1,10 +1,10 @@
 package com.backbone.core.demo;
 
+import com.backbone.core.demo.service.ProductService;
 import com.backbone.core.demo.service.ReviewService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @RestController
@@ -25,7 +26,10 @@ public class ProductController {
     private static final String SIZE = "10";
 
     @Autowired
-    ProductRepository repository;
+    ProductRepository productRepository;
+
+    @Autowired
+    ProductService productService;
 
     @Autowired
     ReviewService reviewService;
@@ -34,19 +38,21 @@ public class ProductController {
 
     //todo: enhance log-message format => sometimes we may return other than object like count of records...
 
+    //todo: caching reviews in product-service is dangerous ! clean them
+
     /**
-     * Get product by Id. Then call other services to gather more data
+     * Get product by Id. Then call other services to gather more data.
+     * It caches data after 1st call w/ id.
      *
-     * @returnedData: product (detail)
-     *                review
-     *                ....
+     * @cached: product
      *
      * log format: message [param1, param2] : returned-object
      *     message can be => Not found, Get, Returned, Exception
      *
      * @param id Product's Id in URL
      * @return If find, returns Product, and HttpStatus.OK
-     *         If not found, returns Null, and HttpStatus.NOT_FOUND
+     *         If parameter is not valid (such as string instead int), returns Null, and HttpStatus.BAD_REQUEST
+     *         If not found (empty Product), returns Null, and HttpStatus.NOT_FOUND
      *         If any exception occurs, returns null, and HttpStatus.EXPECTATION_FAILED
      */
     @GetMapping("/product/{id}")
@@ -54,38 +60,38 @@ public class ProductController {
         log.info("Get [id:{}]", id);
 
         try {
-            Optional<Product> product = repository.findById(Integer.parseInt(id));
+            AtomicReference<ResponseEntity<Product>> result = new AtomicReference<>();
 
-            if (product.isEmpty()) {
-                log.warn("Not found [id:{}]", id);
+            productService.getProduct(id)
+                          .ifPresent(product -> {
 
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
+                    // todo: creates low degree of coupling !
+                    // call review-service
+                    reviewService.productsReviews(id)
+                                 .ifPresent(reviews -> {
 
-            /** todo: if no reviews, handle it better! especially not found, exception, bad request.
-             * something is about feign client !
-             */
-            // call review-service
-            ResponseEntity<Optional<List<Review>>> reviews = reviewService.productsReviews(id);
+                                     log.info("Call review-service [id:{}, count:{}]", id, reviews.size());
 
-            if (reviews.getBody().isPresent()) {
-                if (reviews.hasBody()) {
-                    log.info("Call review-service [id:{}, count:{}]", id, reviews.getBody().get().size());
+                                     product.setReviews(reviews);
+                                 });
 
-                    product.get().setReviews(reviews.getBody().get());
-                }
-            }
+                    // call other-services, if necessary
 
-            // call other-services, where necessary
+                    log.info("Returned [id:{}] : {}", id, product);
 
-            log.info("Returned [id:{}] : {}", id, product.get());
+                    result.set(new ResponseEntity<>(product, HttpStatus.OK));
+            });
 
-            return new ResponseEntity<>(product.get(), HttpStatus.OK);
+            return result.get();
 
         } catch (NumberFormatException nfe) {
             log.error("Bad request [id:{}] : {}", id, nfe.getMessage());
 
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NullPointerException npe) {
+            log.warn("Not found [id:{}] : {}", id, npe.getMessage());
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             log.error("Exception [id:{}] : {}", id, e.getMessage());
 
@@ -93,96 +99,99 @@ public class ProductController {
         }
     }
 
-    /**
-     * Get product by Id w/ HATEOS support (GET and DELETE links)
-     *
-     * @param id Product's Id in URL
-     * @return If find, returns Product, and get link, and delete link
-     *         If not found, returns Null
-     *         If any exception occurs, returns null
-     */
-    @GetMapping("v2/product/{id}")
-    public EntityModel<Product> getProductAsHATEOS(@PathVariable String id) {
-        log.info("Get [id:{}]", id);
-
-        try {
-            Optional<Product> product = repository.findById(Integer.parseInt(id));
-
-            if (product.isEmpty()) {
-                log.error("Not found [id:{}]", id);
-
-                return new EntityModel<>(null, null, null);
-            }
-
-            Link getLink = WebMvcLinkBuilder.linkTo(ProductController.class)
-                    .slash(product.get().getId())
-                    .withSelfRel();
-
-            Link deleteLink = WebMvcLinkBuilder.
-                    linkTo(WebMvcLinkBuilder
-                            .methodOn(ProductController.class)
-                            .deleteProduct(String.valueOf(product.get().getId())))
-                    .withRel("delete");
-
-            log.info("Returned [id:{}]: {}", id, product.get());
-
-            return new EntityModel<>(product.get(), getLink, deleteLink);
-        } catch (NumberFormatException nfe) {
-            log.error("Bad request [id:{}] : {}", id, nfe.getMessage());
-
-            return new EntityModel<>(null, null, null);
-        } catch (Exception e) {
-            log.error("Exception [id:{}] : {}", id, e.getMessage());
-
-            return new EntityModel<>(null, null, null);
-        }
-    }
+//    /**
+//     * Get product by Id w/ HATEOS support (GET and DELETE links)
+//     *
+//     * @param id Product's Id in URL
+//     * @return If find, returns Product, and get link, and delete link
+//     *         If not found, returns Null
+//     *         If any exception occurs, returns null
+//     */
+//    @GetMapping("v2/product/{id}")
+//    public EntityModel<Product> getProductAsHATEOS(@PathVariable String id) {
+//        log.info("Get [id:{}]", id);
+//
+//        try {
+//            Optional<Product> product = productService.getProduct(id);
+//
+//            if (product.isEmpty()) {
+//                log.error("Not found [id:{}]", id);
+//
+//                return new EntityModel<>(null, null, null);
+//            }
+//
+//            Link getLink = WebMvcLinkBuilder.linkTo(ProductController.class)
+//                    .slash(product.get().getId())
+//                    .withSelfRel();
+//
+//            Link deleteLink = WebMvcLinkBuilder.
+//                    linkTo(WebMvcLinkBuilder
+//                            .methodOn(ProductController.class)
+//                            .deleteProduct(String.valueOf(product.get().getId())))
+//                    .withRel("delete");
+//
+//            log.info("Returned [id:{}]: {}", id, product.get());
+//
+//            return new EntityModel<>(product.get(), getLink, deleteLink);
+//        } catch (NumberFormatException nfe) {
+//            log.error("Bad request [id:{}] : {}", id, nfe.getMessage());
+//
+//            return new EntityModel<>(null, null, null);
+//        } catch (Exception e) {
+//            log.error("Exception [id:{}] : {}", id, e.getMessage());
+//
+//            return new EntityModel<>(null, null, null);
+//        }
+//    }
 
     /**
      * Get all products via paging and size.
+     * It caches data after 1st call.
      *
-     * @returnedData: product (header)
-     *
+     * @cached: product
      *
      * @param page default=0 to ...N
      * @param size default=10, if empty
-     * @return If OK, returns List<Review>, and HttpStatus.OK
+     * @return If OK, returns List<Product>, and HttpStatus.OK
+     *         If parameter is not valid (such as string instead int), returns Null, and HttpStatus.BAD_REQUEST
+     *         If page or size have no record, returns null, and HttpStatus.NO_CONTENT
      *         If any exception occurs, returns null, and HttpStatus.EXPECTATION_FAILED
-     *         If page or size has no record, returns null, and HttpStatus.NOT_FOUND
      */
     @GetMapping(path = {"/products",
                         "/products/page/{page}",
                         "/products/page/{page}/size/{size}"})
     public ResponseEntity<List<Product>> getProducts(@PathVariable(required = false) String page,
                                                      @PathVariable(required = false) String size) {
-        // set defaults
-        page = (page == null) ? PAGE : page;
-        size = (size == null) ? SIZE : size;
+        //set defaults
+        String p = Optional.ofNullable(page).orElse(PAGE);
+        String s = Optional.ofNullable(size).orElse(SIZE);
 
-        log.info("Get [page:{}, size:{}]", page, size);
+        log.info("Get [page:{}, size:{}]", p, s);
 
         try {
-            Page<Product> products = repository.findAll(PageRequest.of(Integer.parseInt(page),
-                                                                       Integer.parseInt(size)));
+            AtomicReference<ResponseEntity<List<Product>>> result = new AtomicReference<>();
 
-            // if no records found,
-            if (products.isEmpty()) {
-                log.error("Not found [page:{}, size:{}]", page, size);
+            productService.getProducts(p, s)
+                          .ifPresent(products -> {
 
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
+                            log.info("Returned [page:{}, size:{}] : {}", p, s, products.getContent());
 
-            log.info("Returned [page:{}, size:{}] : {}", page,
-                                                         size,
-                                                         products.get().collect(Collectors.toList()));
+                            result.set(new ResponseEntity<>(products.getContent(), HttpStatus.OK));
 
-            return new ResponseEntity<>(products.get().collect(Collectors.toList()), HttpStatus.OK);
+                          });
+
+            return result.get();
+
         } catch (NumberFormatException nfe) {
-            log.error("Bad request [page:{}, size:{}] : {}", page, size, nfe.getMessage());
+            log.error("Bad request [page:{}, size:{}] : {}", p, s, nfe.getMessage());
 
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NullPointerException npe) {
+            log.warn("No content [page:{}, size:{}] : {}", p, s, npe.getMessage());
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
-            log.error("Exception [page:{}, size:{}] : {}", page, size, e.getMessage());
+            log.error("Exception [page:{}, size:{}] : {}", p, s, e.getMessage());
 
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
@@ -191,27 +200,34 @@ public class ProductController {
     /**
      * Get all distinct categories
      *
-     * query: select distinct category from product
+     * @cached: categories
      *
-     * @return List<String>, and HttpStatus
-     * @throws Exception .
+     * @return If OK, returns categories, and HttpStatus.OK
+     *         If no record, returns null, and HttpStatus.NOT_FOUND
+     *         If any exception occurs, returns null, and HttpStatus.EXPECTATION_FAILED
      */
     @GetMapping("/products/category")
     public ResponseEntity<List<String>> getCategories() {
         log.info("Get");
 
         try {
-            Optional<List<String>> categories = repository.getDistinctCategories();
+            AtomicReference<ResponseEntity<List<String>>> result = new AtomicReference<>();
 
-            if (categories.isEmpty()) {
-                log.error("Not found : {}", (Object) null);
+            productService.getCategories()
+                          .ifPresent(categories -> {
 
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
+                              log.info("Returned : {}", categories);
 
-            log.info("Returned : {}", categories.get());
+                              result.set(new ResponseEntity<>(categories, HttpStatus.OK));
 
-            return new ResponseEntity<>(categories.get(), HttpStatus.OK);
+                          });
+
+            return result.get();
+
+        } catch (NullPointerException npe) {
+            log.warn("Not found : {}", npe.getMessage());
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             log.error("Exception : {}", e.getMessage());
 
@@ -226,95 +242,82 @@ public class ProductController {
 //  CreateUpdateDelete ops
 
     /**
-     * Create product.
+     * Save product. If,
+     *   id == 0, creates
+     *   id != 0 and isValid, updates
+     *   id != 0 and notValid, creates and risks cache!
      *
      * @param product as JSON in RequestBody
-     * @return If OK, creates Product, new Id in Headers, and HttpStatus.CREATED
-     *         If RequestBody not OK, returns Null, and HttpStatus.BAD_REQUEST
+     * @return If OK, returns updated or created Product, and HttpStatus.OK
+     *         If RequestBody or Id not OK, returns Null, and HttpStatus.BAD_REQUEST
      *         If any exception occurs, returns null, and HttpStatus.EXPECTATION_FAILED
      */
+    @PutMapping("/product")
     @PostMapping("/product")
-    public ResponseEntity<Product> addProduct(@RequestBody Product product) {
-        log.info("Create [product:{}]", product);
+    public ResponseEntity<Product> saveProduct(@RequestBody Product product) {
 
-        if (product == null) {
-            log.error("Bad request [review:{}]", (Object) null);
+        log.info("Save [product:{}]", product);
 
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        AtomicReference<ResponseEntity<Product>> result = new AtomicReference<>();
 
         try {
-            Product createdProduct = repository.save(product);
+            Optional.of(product)
+                    .flatMap(product1 ->
+                            productService.saveProduct(String.valueOf(product1.getId()), product1))
+                                          .ifPresent(updatedProduct -> {
+                                              log.info("Saved : {}", updatedProduct);
 
-            HttpHeaders headers= new HttpHeaders();
-            headers.add("id", String.valueOf(createdProduct.getId()));
+                                              result.set(new ResponseEntity<>(updatedProduct, HttpStatus.OK));
+                                          });
 
-            log.info("Created : {}", createdProduct);
+            return result.get();
 
-            return new ResponseEntity<>(createdProduct, headers, HttpStatus.CREATED);
+        } catch (IllegalArgumentException iae) {
+            log.error("Bad request [product:{}]", product);
+
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+
             log.error("Exception [product:{}] : {}", product, e.getMessage());
 
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
     }
 
-    /**
-     * Update product.
-     *
-     * @param id of Product in URL
-     * @param product as JSON in RequestBody
-     * @return If OK, returns updated Product, and HttpStatus.OK
-     *         If RequestBody or Id not OK, returns Null, and HttpStatus.BAD_REQUEST
-     *         If any exception occurs, returns null, and HttpStatus.EXPECTATION_FAILED
-     */
-    @PutMapping("/product/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable String id, @RequestBody Product product) {
-        log.info("Update [id:{}, product:{}]", id, product);
-
-        if (product == null || id == null) {
-            log.error("Bad request [id:{}, product:{}]", id, product);
-
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        try {
-            Product updatedProduct = repository.save(product);
-
-            log.info("Updated : {}", updatedProduct);
-
-            return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
-        } catch (Exception e) {
-            log.error("Exception [id:{}] : {}", id, e.getMessage());
-
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
-        }
-    }
 
     /**
      * Delete product.
      *
+     * @cached: product
+     *
      * @param id of Product in URL
      * @return If OK, returns HttpStatus.OK
-     *         If Id not OK, returns HttpStatus.BAD_REQUEST
+     *         If Input is not OK, returns HttpStatus.BAD_REQUEST
      *         If any exception occurs, returns HttpStatus.EXPECTATION_FAILED
      */
     @DeleteMapping("/product/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable String id) {
         log.info("Delete [id:{}]", id);
 
-        if (id == null) {
-            log.error("Bad request [id:{}]", (Object) null);
-
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        AtomicReference<ResponseEntity<Void>> result = new AtomicReference<>();
 
         try {
-            repository.deleteById(Integer.valueOf(id));
 
-            log.info("Deleted [id:{}]", id);
+            Optional.of(id)
+                    .ifPresent(id1 -> {
+                        productService.deleteProduct(id1);
 
-            return new ResponseEntity<>(HttpStatus.OK);
+                        log.info("Deleted [id:{}]", id1);
+
+                        result.set(new ResponseEntity<>(HttpStatus.OK));
+                    });
+
+            return result.get();
+
+        } catch (IllegalArgumentException iae) {
+            log.error("Bad request [id:{}]", id);
+
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         } catch (Exception e) {
             log.error("Exception [id:{}] : {}", id, e.getMessage());
@@ -326,43 +329,50 @@ public class ProductController {
 //  Search ops
 
     /**
-     * Get products by category
+     * Get products by category via paging and size.
      *
-     * @returnedData: product (header)
+     * @cached: nope
      *
-     * @param category Category string in URL
-     * @return List<Product>, and HttpStatus
+     * @param category category of product
+     * @param page default=0 to ...N
+     * @param size default=10, if empty
+     * @return If OK, returns List<Product>, and HttpStatus.OK
+     *         If page or size have no record, returns null, and HttpStatus.NO_CONTENT
+     *         If any exception occurs, returns null, and HttpStatus.EXPECTATION_FAILED
      */
-    @GetMapping({"/products/category/{category}",
-                 "/products/category/{category}/page/{page}",
-                 "/products/category/{category}/page/{page}/size/{size}"})
+    @GetMapping(path = {"/products/category/{category}",
+                        "/products/category/{category}/page/{page}",
+                        "/products/category/{category}/page/{page}/size/{size}"})
     public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable String category,
                                                                @PathVariable(required = false) String page,
                                                                @PathVariable(required = false) String size) {
         // set defaults
-        page = (page == null) ? PAGE : page;
-        size = (size == null) ? SIZE : size;
+        String p = Optional.ofNullable(page).orElse(PAGE);
+        String s = Optional.ofNullable(size).orElse(SIZE);
 
         log.info("Get [category:{}, page:{}, size:{}]", category, page, size);
 
         try {
-            Page<Product> products = repository.findByCategory(category,
-                                                                         PageRequest.of(Integer.parseInt(page),
-                                                                                        Integer.parseInt(size)));
+            AtomicReference<ResponseEntity<List<Product>>> result = new AtomicReference<>();
 
-            if (products.isEmpty()) {
-                log.error("Not found [category:{}, page:{}, size:{}]", category, page, size);
+            productService.getProductsByCategory(category, p, s)
+                          .ifPresent(products -> {
 
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
+                              // todo: returning all reviews in logs vs part of it. better way (debug level) may be good
+                              log.info("Returned [category:{}, page:{}, size:{}] : {}", category
+                                                                                        , p
+                                                                                        , s
+                                                                                        , products.getContent());
 
-            log.info("Returned [category:{}, page:{}, size:{}] : {}", category,
-                                                                      page,
-                                                                      size,
-                                                                      products.get().collect(Collectors.toList()));
+                              result.set(new ResponseEntity<>(products.getContent(), HttpStatus.OK));
+                          });
 
-            return new ResponseEntity<>(products.get().collect(Collectors.toList()), HttpStatus.OK);
+            return result.get();
 
+        } catch (NullPointerException npe) {
+            log.warn("No content [category:{}, page:{}, size:{}]", category, p, s);
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             log.error("Exception [category:{}, page:{}, size:{}] : {}", category, page, size, e.getMessage());
 

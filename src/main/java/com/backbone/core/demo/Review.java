@@ -5,12 +5,15 @@ import lombok.EqualsAndHashCode;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.io.Serializable;
 
 
 @Entity
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class Review {
+public class Review implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     private int id;

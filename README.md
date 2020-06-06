@@ -2,19 +2,27 @@
 
 to create microservices faster, you need a backbone. This boilerplate prepared to practise core microservice concepts like: 
 
-- [x] cloud-native (stateless on K8s)
-- [ ] cloud-native (state-full on GCP PaaS)
-- [x] REST maturity: L2 and L3 (HATEOS)
+- [x] cloud-native
+    - [x] stateless on K8s
+    - [ ] state-full on GCP PaaS (not on K8s)
+- [x] REST maturity
+    - [x] L2 
+    - [x] L3 (HATEOS)
 - [x] naming conventions
 - [x] actuator (/health)
 - [x] error-handling
-- [x] logging: general {Slf4j}
-- [ ] logging: distributed-tracing {sleuth}
-- [ ] logging: monitoring
-- [ ] api-management: message-converter (such as text2json and vice versa)
+- [x] logging
+    - [x] general {Slf4j}
+    - [x] message format standardization
+    - [ ] distributed-tracing {sleuth}
+    - [ ] monitoring
+- [ ] api-management
+    - [] message-converter (such as text2json and vice versa)
 - [ ] security
 - [x] profiles (dev, test, prod)
 - [ ] logical boundaries (separating dbs)
+- [x] caching
+    - [x] L2 {JCache | Ehcache}
 - [x] rest-template {Feign}
 - [ ] api-gateway {zuul}
 - [ ] load-balancing {ribbon}
@@ -28,7 +36,7 @@ to create microservices faster, you need a backbone. This boilerplate prepared t
 ### Technology stack
 
 - Requirements (openjdk 11, docker, GKE)
-- spring boot 2.2.6, gradle 6.3, Lombok 1.18
+- spring boot 2.3.x, gradle 6.3, Lombok 1.18, log4j 2.x, Ehcache 3.x
 
 
 ## Naming Conventions
@@ -40,6 +48,13 @@ to create microservices faster, you need a backbone. This boilerplate prepared t
         - jar name: build/libs/product-service-0.0.1-SNAPSHOT.jar
     - deployment name in k8s: product-service
     - url format: /product/1 or /products
+    
+### OOP Architecture
+
+- Product, Review ... as Entity
+- ProductRepository
+    - ProductService (as JPA cache layer or call APIs)
+        - ProductController (as REST APIs)
 
 ## How To Start
 
@@ -53,7 +68,7 @@ to create microservices faster, you need a backbone. This boilerplate prepared t
 3. to test run `curl localhost:8080`
    * `curl localhost:8080/dummy` or `curl localhost:8080/dummy/name`
    * `curl localhost:8080/products` or `curl localhost:8080/products/10`
-4. to access h2-db check `localhost:8080/h2-console`  w/ conn. `jdbc:h2:mem:products`
+4. to access h2-db check `localhost:8080/h2`  w/ conn. `jdbc:h2:mem:products`
 
 <br>**on Kubernetes**,
 

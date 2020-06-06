@@ -1,4 +1,4 @@
-package com.backbone.core.demo.utility;
+package com.backbone.core.demo.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
