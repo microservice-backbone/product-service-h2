@@ -37,7 +37,7 @@ public class ProductService {
     @Cacheable(value = "products", unless = "#result == null")
     public Optional<Page<Product>> getProducts(String page, String size) {
 
-        // todo: returning Optional instead of Page, and handling in ReviewController can be more concise?
+        //todo: returning Optional instead of Page, and handling in ReviewController can be more concise?
         Page<Product> products = productRepository.findAll(PageRequest.of(Integer.parseInt(page),
                 Integer.parseInt(size)));
 

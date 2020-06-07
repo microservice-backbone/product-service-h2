@@ -19,7 +19,8 @@ create table product
 
 alter table product add primary key (id);
 
---todo: create indexes category etc...
+--todo: create indexes category for more realistic scenarios etc...
+--todo: to open analytical models as API, below flat design should be well ok
 
 INSERT INTO PRODUCT (category,title,sub_title,brand,rating,short_description,description)
 VALUES ('Fashion','Lorem ipsum dolor sit','free cargo','HP',4,'Lorem ipsum','placerat eget, venenatis a, magna. Lorem ipsum dolor sit amet,'),

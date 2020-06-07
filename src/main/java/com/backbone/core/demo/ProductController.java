@@ -38,8 +38,6 @@ public class ProductController {
 
     //todo: enhance log-message format => sometimes we may return other than object like count of records...
 
-    //todo: caching reviews in product-service is dangerous ! clean them
-
     /**
      * Get product by Id. Then call other services to gather more data.
      * It caches data after 1st call w/ id.
@@ -358,7 +356,7 @@ public class ProductController {
             productService.getProductsByCategory(category, p, s)
                           .ifPresent(products -> {
 
-                              // todo: returning all reviews in logs vs part of it. better way (debug level) may be good
+                              //todo: returning all reviews in logs vs part of it. better way (debug level) may be good
                               log.info("Returned [category:{}, page:{}, size:{}] : {}", category
                                                                                         , p
                                                                                         , s
