@@ -15,7 +15,6 @@ import java.util.Optional;
 public interface ReviewService {
 
     @GetMapping("reviews/product/{productId}")
-    @Cacheable(value = "review", key = "#productId", unless = "#result == null")
     Optional<List<Review>> productsReviews(@PathVariable String productId);
 
 }

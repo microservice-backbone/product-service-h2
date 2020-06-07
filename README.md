@@ -17,7 +17,7 @@ to create microservices faster, you need a backbone. This boilerplate prepared t
     - [ ] distributed-tracing {sleuth}
     - [ ] monitoring
 - [ ] api-management
-    - [] message-converter (such as text2json and vice versa)
+    - [ ] message-converter (such as text2json and vice versa)
 - [ ] security
 - [x] profiles (dev, test, prod)
 - [ ] logical boundaries (separating dbs)
