@@ -63,6 +63,7 @@ to create microservices faster, you need a backbone. This boilerplate prepared t
 1. `mkdir microservice-backbone-boilerplate && cd microservice-backbone-boilerplate` then
     - `git clone https://github.com/tansudasli/product-service-h2.git && cd product-service-h2`
 2. to Run the application <br>
+   * `./gradlew wrapper` to download necessary wrappers. Then
    * `./gradlew bootRun` to start,
    * `./gradlew bootJar` to create jar lib, and run w/ `java -jar build/libs/*.jar`
 3. to test run `curl localhost:8080`
