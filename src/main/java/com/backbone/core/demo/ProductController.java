@@ -97,51 +97,6 @@ public class ProductController {
         }
     }
 
-//    /**
-//     * Get product by Id w/ HATEOS support (GET and DELETE links)
-//     *
-//     * @param id Product's Id in URL
-//     * @return If find, returns Product, and get link, and delete link
-//     *         If not found, returns Null
-//     *         If any exception occurs, returns null
-//     */
-//    @GetMapping("v2/product/{id}")
-//    public EntityModel<Product> getProductAsHATEOS(@PathVariable String id) {
-//        log.info("Get [id:{}]", id);
-//
-//        try {
-//            Optional<Product> product = productService.getProduct(id);
-//
-//            if (product.isEmpty()) {
-//                log.error("Not found [id:{}]", id);
-//
-//                return new EntityModel<>(null, null, null);
-//            }
-//
-//            Link getLink = WebMvcLinkBuilder.linkTo(ProductController.class)
-//                    .slash(product.get().getId())
-//                    .withSelfRel();
-//
-//            Link deleteLink = WebMvcLinkBuilder.
-//                    linkTo(WebMvcLinkBuilder
-//                            .methodOn(ProductController.class)
-//                            .deleteProduct(String.valueOf(product.get().getId())))
-//                    .withRel("delete");
-//
-//            log.info("Returned [id:{}]: {}", id, product.get());
-//
-//            return new EntityModel<>(product.get(), getLink, deleteLink);
-//        } catch (NumberFormatException nfe) {
-//            log.error("Bad request [id:{}] : {}", id, nfe.getMessage());
-//
-//            return new EntityModel<>(null, null, null);
-//        } catch (Exception e) {
-//            log.error("Exception [id:{}] : {}", id, e.getMessage());
-//
-//            return new EntityModel<>(null, null, null);
-//        }
-//    }
-
     /**
      * Get all products via paging and size.
      * It caches data after 1st call.
