@@ -239,6 +239,8 @@ public class ProductController {
 
 //  CreateUpdateDelete ops
 
+    //TODO: in elasticsearch, PUT is arranged as partial product update, POST is creating a new one.
+
     /**
      * Save product. If,
      *   id == 0, creates
@@ -250,15 +252,15 @@ public class ProductController {
      *         If RequestBody or Id not OK, returns Null, and HttpStatus.BAD_REQUEST
      *         If any exception occurs, returns null, and HttpStatus.EXPECTATION_FAILED
      */
-    @PutMapping("/product")
     @PostMapping("/product")
     public ResponseEntity<Product> saveProduct(@RequestBody Product product) {
 
         log.info("Save [product:{}]", product);
 
-        AtomicReference<ResponseEntity<Product>> result = new AtomicReference<>();
 
         try {
+            AtomicReference<ResponseEntity<Product>> result = new AtomicReference<>();
+
             Optional.of(product)
                     .flatMap(product1 ->
                             productService.saveProduct(String.valueOf(product1.getId()), product1))
