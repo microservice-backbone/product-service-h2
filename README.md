@@ -33,8 +33,8 @@ to create microservices faster, you need a backbone. This boilerplate prepared t
 
 ### Technology stack
 
-- Requirements (openjdk 11, docker, GKE)
-- spring boot 2.4.x, gradle 6.7, Lombok 1.18, log4j 2.x, Ehcache 3.x
+- Requirements (openjdk 11, docker, k8s)
+- spring boot 2.4.x, gradle 6.7, Lombok 1.18, log4j 2.x, Ehcache 3.x, junit 5.x
 
 
 ## Naming Conventions
