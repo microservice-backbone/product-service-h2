@@ -139,6 +139,8 @@ public class ProductController {
 
         log.info("Get [page:{}, size:{}]", p, s);
 
+        //todo: If you get, non number page or size, You must return Bad request,
+        // but it expects String in url. Consider to add a validation step?
         try {
             AtomicReference<ResponseEntity<List<Product>>> result = new AtomicReference<>();
 
