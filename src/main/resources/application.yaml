@@ -1,10 +1,7 @@
 server:
   port: 8083              # www 80, api-gateway 8080, and others take diff. ports
-
+  shutdown: graceful
 spring:
-  profiles:
-#    include: db          # to include application-db.yaml file
-#    active:              # none, dev, test ... to switch profiles
   application:
     name: product-service-h2
   h2:                     # db
@@ -29,8 +26,10 @@ spring:
     jcache:
       config: classpath:config/ehcache.xml
       provider: org.ehcache.jsr107.EhcacheCachingProvider
-
-
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+#  main:
+#    cloud-platform: kubernetes
 
 logging:
 #  config: classpath:config/logback-spring.xml
@@ -46,3 +45,8 @@ logging:
     file: "%d %-5level [${spring.application.name}] [%thread] %logger{0}.%method : %msg%n"
     rolling-file-name: ${LOG_FILE}.%d{yyyy-MM-dd}.%i.log.gz
 
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include:

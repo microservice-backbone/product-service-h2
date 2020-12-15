@@ -2,9 +2,6 @@ server:
   port: 8083              # www 80, api-gateway 8080, and others take diff. ports
 
 spring:
-  profiles:
-  #    include: db          # to include application-db.yaml file
-  #    active:              # none, dev, test ... to switch profiles
   application:
     name: product-service-h2
   h2:                     # db
